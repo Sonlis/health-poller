@@ -1,0 +1,9 @@
+services:
+  - host: http://192.168.0.151:6060
+    path: /health
+    name: Gotify
+    expectedJson:
+      database: green
+      health: green
+gotifyToken: <token>
+gotifyHost: 192.168.0.151:6060
