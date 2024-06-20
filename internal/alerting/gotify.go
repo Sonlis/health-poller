@@ -2,17 +2,24 @@ package alerting
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
 
+type GotifyResponse struct {
+	Error     string `json:"error"`
+	ErrorCode int    `json:"errorCode"`
+}
+
 func AlertServiceUnealthy(serviceName, message, gotifyToken, gotifyHost string) error {
+	var gotifyResponse GotifyResponse
 	var client http.Client
 	requestBody := formatRequestBody(serviceName, message)
-	r, err := http.NewRequest("POST", "http://"+gotifyHost+"//message", bytes.NewBuffer(requestBody))
+	r, err := http.NewRequest("POST", gotifyHost+"/message", bytes.NewBuffer(requestBody))
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("Creating request to gotify failed: %v", err)
 	}
 
 	r.Header.Add("Content-Type", "application/json")
@@ -20,15 +27,24 @@ func AlertServiceUnealthy(serviceName, message, gotifyToken, gotifyHost string) 
 
 	resp, err := client.Do(r)
 	if err != nil {
-		return err
+		return fmt.Errorf("Sending alert to gotify failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("Reading gotify's response failed: %v", err)
 	}
-	fmt.Println(string(body))
+
+	err = json.Unmarshal(body, &gotifyResponse)
+	if err != nil {
+		return fmt.Errorf("Unmarshaling gotify's response failed: %v", err)
+	}
+
+	if gotifyResponse.Error != "" {
+		return fmt.Errorf("Alert could not be created: %v, status code %d", gotifyResponse.Error, gotifyResponse.ErrorCode)
+	}
+
 	return err
 }
 

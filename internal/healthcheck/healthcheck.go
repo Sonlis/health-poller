@@ -31,24 +31,24 @@ func GetHealth(host, path string, expectedJSON map[string]string) (string, error
 		return "", nil
 	}
 
-	healthStatus, err := checkHealth(body, expectedJSON)
-	return healthStatus, nil
-}
-
-func checkHealth(body []byte, expectedBody map[string]string) (string, error) {
 	var healthStatus map[string]string
-	err := json.Unmarshal(body, &healthStatus)
+	err = json.Unmarshal(body, &healthStatus)
 	if err != nil {
 		return "", err
 	}
+
+	return checkHealth(healthStatus, expectedJSON), nil
+}
+
+func checkHealth(healthStatus map[string]string, expectedBody map[string]string) string {
 	for key, value := range healthStatus {
 		if expectedValue, ok := expectedBody[key]; ok {
 			if value == expectedValue {
 				continue
 			}
-			return formatHealthError(key, value, expectedValue), nil
+			return formatHealthError(key, value, expectedValue)
 		}
-		return formatKeyError(key), nil
+		return formatKeyError(key)
 	}
-	return "", err
+	return ""
 }
