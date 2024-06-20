@@ -13,7 +13,7 @@ import (
 func main() {
 	conf, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("Error getting configuration from config file: %v", err)
+		log.Fatalf("Error parsing configuration: %v", err)
 	}
 	var wg sync.WaitGroup
 	for index := range conf.Services {

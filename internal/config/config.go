@@ -1,6 +1,9 @@
 package config
 
 import (
+	"errors"
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -24,16 +27,24 @@ func NewConfig() (Config, error) {
 	viper.AddConfigPath("/etc/health-poller")
 	viper.AddConfigPath("$HOME/.health-poller")
 	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return c, err
-		} else {
-			return c, err
-		}
-	}
-	err := viper.Unmarshal(&c)
+
+	err := viper.ReadInConfig()
 	if err != nil {
 		return c, err
 	}
+
+	err = viper.Unmarshal(&c)
+	if err != nil {
+		return c, err
+	}
+
+	if c.GotifyToken == "" {
+		if gotifyToken := os.Getenv("GOTIFY_TOKEN"); gotifyToken != "" {
+			c.GotifyToken = gotifyToken
+		} else {
+			return c, errors.New("Error retrieving the gotify token from the config file or environment variables.")
+		}
+	}
+
 	return c, nil
 }

@@ -2,7 +2,10 @@ module github.com/sonlis/health-poller
 
 go 1.21.5
 
-require github.com/spf13/viper v1.19.0
+require (
+	github.com/google/go-cmp v0.5.9
+	github.com/spf13/viper v1.19.0
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
