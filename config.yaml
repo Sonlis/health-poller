@@ -1,8 +1,9 @@
 services:
-  - host: http://192.168.0.151:6060
+  - host: http://127.0.0.1:9090
+    path: /-/healthy
+    name: Prometheus
+  # For testing, this configuration is on purpose wrong
+  - host: http://127.0.0.1:9090
     path: /health
-    name: Gotify
-    expectedJson:
-      database: green
-      health: green
-gotifyHost: http://192.168.0.151:6060
+    name: Prometheus-fail
+gotifyHost: http://127.0.0.1:8080

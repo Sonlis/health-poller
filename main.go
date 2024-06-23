@@ -22,7 +22,8 @@ func main() {
 			defer wg.Done()
 			unealthyMessage, err := healthcheck.GetHealth(service.Host, service.Path, service.ExpectedJSON)
 			if err != nil {
-				err := alerting.AlertServiceUnealthy(service.Name, fmt.Sprintf("impossible to reach %s", service.Name), conf.GotifyToken, conf.GotifyHost)
+				log.Printf("Checking the health of %s failed: %v", service.Name, err)
+				err := alerting.AlertServiceUnealthy(service.Name, fmt.Sprintf("impossible to reach %s: %v", service.Name, err), conf.GotifyToken, conf.GotifyHost)
 				if err != nil {
 					log.Printf("Sending the alert to gotify failed: %v", err)
 				}
