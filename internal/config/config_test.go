@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -10,24 +9,25 @@ import (
 
 func TestNewConfig(t *testing.T) {
 	viper.AddConfigPath("../..")
-	os.Setenv("GOTIFY_TOKEN", "jpp")
+	t.Setenv("GOTIFY_TOKEN", "jpp")
 	got, err := NewConfig()
 	if err != nil {
 		t.Errorf("Error creating new config: %v", err)
 	}
-	expectedJSON := map[string]string{
-		"database": "green",
-		"health":   "green",
-	}
+
 	want := Config{
-		GotifyHost:  "http://192.168.0.151:6060",
+		GotifyHost:  "http://127.0.0.1:8080",
 		GotifyToken: "jpp",
 		Services: []Service{
 			{
-				Host:         "http://192.168.0.151:6060",
-				Path:         "/health",
-				Name:         "Gotify",
-				ExpectedJSON: expectedJSON,
+				Host: "http://127.0.0.1:9090",
+				Path: "/-/healthy",
+				Name: "Prometheus",
+			},
+			{
+				Host: "http://127.0.0.1:9090",
+				Path: "/health",
+				Name: "Prometheus-fail",
 			},
 		},
 	}
